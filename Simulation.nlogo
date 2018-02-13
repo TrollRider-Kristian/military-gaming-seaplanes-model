@@ -66,6 +66,11 @@ end
 ;sprout [breed]
 ;+1 -1 on base variable
 ;
+
+
+
+
+;not sure what all this is but I guess is needed to populate the loading screen buttons
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
