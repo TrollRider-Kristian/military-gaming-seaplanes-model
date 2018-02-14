@@ -1,5 +1,3 @@
 # military-gaming-seaplanes-model
 
-# this is a test of the model labeling system
-
-# Thanks Max!
+This is a model of American bomber and seaplane forces in the Phillipines between December 7 1941 and February 1 1942.
