@@ -1,18 +1,21 @@
  breed [seaplanes seaplane]
  breed [bombers bomber]
- breed [red_fighters red_fighter]
+ breed [red_scouts red_scout]
  breed [red_bombers red_bomber]
  breed [tenders  tender]
  breed [bases base]
  breed [red_bases red_base]
  breed [seaplane_bases seaplane_base]
 
-globals[ B_17 PBY ]
+globals[ B_17 PBY tonnage_B_17 tonnage_PBY red_target]
 
 bases-own[ health_land planes_land ]
 seaplane_bases-own[ health_sea planes_sea ]
 tenders-own[health]
 seaplanes-own[fuel bombs sea_home_base]
+red_bases-own[no_red_scouts no_red_bombers]
+red_scouts-own[fuel scout_base]
+red_bombers-own[fuel red_bomber_base]
 
 
 to setup
@@ -21,6 +24,11 @@ to setup
   resize-world 0 97 0 160 ; 0 193 0 318
   import-pcolors "AOO2.png"
   reset-ticks
+  setup_bases_historical
+  setup_red_base
+  setup_seaplane_bases
+  setup_tenders
+  set tonnage_PBY 0
 end
 
 to setup_bases_historical
@@ -33,35 +41,18 @@ to setup_bases_historical
     set size 2.5  ;; easier to see
     set label-color blue - 2
     setxy 36 114]
-  ; Another field
-    create-bases 1[ ;; create the sheep
-    ;; then initialize their variables
-    set color blue
-    set size 2.5  ;; easier to see
-    set label-color blue - 2
-    setxy 74 227]
-  ; Another field
-    create-bases 1[ ;; create the sheep
-    ;; then initialize their variables
-    set color blue
-    set size 2.5  ;; easier to see
-    set label-color blue - 2
-    setxy 70 234]
-  ; Another field
-    create-bases 1[ ;; create the sheep
-    ;; then initialize their variables
-    set color blue
-    set size 2.5  ;; easier to see
-    set label-color blue - 2
-    setxy 90 180]
+end
 
+to setup_red_base
     ;; red base setup
     set-default-shape red_bases "house"
     create-red_bases 1 [
       set color red
       set size 2.5
     set label-color red
-    setxy 62 292
+    setxy 31 147
+    set no_red_scouts 10
+    set no_red_bombers 10
   ]
 end
 
@@ -96,10 +87,18 @@ set-default-shape tenders "circle"
   ]
 end
 
+
+
+;; end of setup code
+
+
 to go
   if ticks >= 1000 [stop]
   seaplane_generate
+  bomber_generate
+  red_generate
   ;genereate other shit
+  red_go
   seaplane_go
   ;other shit go
   tick
@@ -120,20 +119,21 @@ end
 
 to seaplane_go
   ask seaplanes [
-    ifelse fuel > 50
+    ifelse fuel > 50 ; checks to see if fuel is available
     [
     let target-patch one-of (patches with [pcolor = 9.9 and pycor < 142 and pycor > 120]) ;sets target for mission
     face target-patch
       seaplane_move ] ; this block if still has fuel
-    [let target-patch sea_home_base
+    [let target-patch sea_home_base ; if fuel is not available, it returns to base
     face target-patch
       seaplane_move
-    if patch-here = target-patch
-          [
+    if patch-here = target-patch ; this block adds the seaplanes back to the base
+          [ set tonnage_PBY (tonnage_PBY + 2000)
             let blah one-of seaplane_bases-here                    ;; gets the base
             ask blah [
                 set planes_sea planes_sea + 1 ]
               die
+
       ]
 
     ]
@@ -144,6 +144,9 @@ end
 to seaplane_move
   fd 1
   set fuel (fuel - 1)
+  if 10 > random 10000 ;probability of dying
+  [set PBY PBY - 1
+    die]
 end
 
 
@@ -157,6 +160,59 @@ to bomber_generate
     set label-color blue
     ]
   ]
+end
+
+to red_generate
+  set-default-shape red_scouts "airplane"
+  set-default-shape red_bombers "airplane"
+  ask red_bases [ hatch-red_scouts round (no_red_scouts / 2) [
+    set color yellow
+    set size 2.5  ;; easier to see
+    set label-color yellow
+    set fuel 100
+    set scout_base patch-here
+    let target-patch one-of (patches with [(pcolor != 9.9) and pxcor > 30 and pxcor < 60 and pycor < 129]) ;sets target for mission
+    face target-patch
+    ]
+    set  no_red_scouts no_red_scouts - round (no_red_scouts / 2)]
+
+    ask red_bases [ hatch-red_bombers round (no_red_bombers / 2) [
+    set color red
+    set size 2.5  ;; easier to see
+    set label-color red
+    set fuel 100
+    set red_bomber_base patch-here
+    ]
+  ]
+
+end
+
+to red_go
+  ask red_scouts [
+    ifelse fuel > 50 ; checks to see if fuel is available
+    [
+      scout_move ] ; this block if still has fuel
+    [let target-patch scout_base ; if fuel is not available, it returns to base
+    face target-patch
+      scout_move
+    if patch-here = target-patch ; this block adds the seaplanes back to the base
+          [
+            let blah one-of red_bases-here                    ;; gets the base
+            ask blah [
+                set no_red_scouts no_red_scouts + 1 ]
+              die
+
+      ]
+
+    ]
+  ]
+
+
+end
+
+to scout_move
+  fd 1.5
+  set fuel (fuel - 0.75)
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -173,8 +229,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-1
-1
+0
+0
 1
 0
 97
@@ -304,6 +360,36 @@ NIL
 NIL
 NIL
 1
+
+PLOT
+1522
+164
+2170
+538
+PBY vs. B-17 Tonnage Delivered
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -13840069 true "" "plot tonnage_PBY"
+"pen-1" 1.0 0 -13345367 true "" "plot tonnage_B-17"
+
+MONITOR
+1694
+552
+1774
+598
+Number of PBYs Remaining
+PBY
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
