@@ -64,7 +64,19 @@ end
 
 to go
   tick
-  if ticks > 288 [ask patch 70 258 [set pcolor red]]
+  if ticks > 288 [ask patch 78 273 [set pcolor red]] ;;advance landing at Batan Island on 8th December
+  if ticks > 864 [ask (patch-set patch 75 256 patch 67 251 patch 76 261) [set pcolor red]]  ;;inital landings at Aparri, Vigan, and Camiguin Island on Dec 10 - 5 minutes per tick, first tick 7am Dec 7
+  if ticks mod 144 = 0 [ ;;allow the japanese to spread their love twice a day (where the remainder of the number of ticks in half a day divided into the current number of ticks is 0)
+  ask patches [
+    if pcolor = red [
+    ask neighbors [
+        if pcolor != white [
+          set pcolor red
+      ]
+    ]
+  ]
+  ]
+  ]
  ;;go button is now go- had to check forever box on the actual button in the interface tab
  ;; NOTE: speed should be set to "quite slow"
 end
