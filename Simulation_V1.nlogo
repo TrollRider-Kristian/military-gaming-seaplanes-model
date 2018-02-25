@@ -11,7 +11,7 @@ globals[]
 
 to setup
   clear-all
-  set-current-directory "/Users/DCAlman/Desktop/Seaplane Simulation"
+  set-current-directory "/the-image-place"
   resize-world 0 193 0 318
   import-pcolors "AOO2.png"
 
@@ -75,13 +75,13 @@ end
 GRAPHICS-WINDOW
 210
 10
-2740
-4166
+800
+976
 -1
 -1
-13.0
+3.0
 1
-10
+5
 1
 1
 1
