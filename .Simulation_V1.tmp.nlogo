@@ -11,7 +11,8 @@ globals[]
 
 to setup
   clear-all
-  resize-world 0 193 0 318
+  set-current-directory "/the-image-place" ;; new local path to fix bug where code was pulling from computer-specific path
+  resize-world 0 193 0 318                 ;; B
   import-pcolors "AOO2.png"
   reset-ticks
 end
