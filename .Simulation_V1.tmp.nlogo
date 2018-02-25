@@ -7,14 +7,14 @@
  breed [red_bases red_base]
  breed [seaplane_bases seaplane_base]
 
-globals[]
+globals[number]
 
 to setup
   clear-all
-  set-current-directory "/the-image-place" ;; new local path to fix bug where code was pulling from computer-specific path
-  resize-world 0 193 0 318                 ;; B
-  import-pcolors "AOO2.png"
+  resize-world 0 193 0 318
+  import-pcolors "AOO2.png" ;; deleted set_directory to fix map bug- see commits "fixed map bug" and "fixed map bug for real"
   reset-ticks
+  set number 0
 end
 
 to setup_bases_historical
@@ -63,8 +63,10 @@ to setup_units_historical
 end
 
 to go
-  if ticks > 10 [ask patches [set pcolor red]]
   tick
+  if ticks > 288 [ask patch 0 0 [set pcolor red]]
+;;go button is now go- had to check forever box on the actual button in the interface tab
+
 end
 
 ;sprout [breed]
@@ -104,10 +106,10 @@ ticks
 30.0
 
 BUTTON
-27
-24
-133
-60
+78
+40
+184
+76
 Setup World
 setup
 NIL
@@ -138,13 +140,13 @@ NIL
 1
 
 BUTTON
-55
-156
-118
-189
+7
+41
+70
+74
 go
 go
-NIL
+T
 1
 T
 OBSERVER
