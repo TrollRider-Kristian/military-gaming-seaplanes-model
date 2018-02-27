@@ -107,11 +107,11 @@ to go
   if ticks = 864 [ask (patch-set patch 38 131 patch 38 129 patch 34 127) [set pcolor red]]  ;;inital landings at Aparri, Vigan, and Camiguin Island on Dec 10 - 5 minutes per tick, first tick 7am Dec 7
   if ticks = 1440[ask patch 50 105 [set pcolor red]] ;;landing at Legaspi on 12th December
   if ticks = 3744[ask patch 58 81 [set pcolor red]] ;;landing at Davao on 20th Dec
-  if (ticks mod 288 = 0 and (10 < random 720)) [ ;;allow the japanese to spread their love at an appropriate rate
+  if (ticks mod 844 = 0 and (10 < random 720)) [ ;;allow the japanese to spread their love at an appropriate rate
     ;; can modify the above value to make the japanese advance more historical in speed without hardcoding it
   ask patches [
     if pcolor = red [
-    ask one-of neighbors [
+    ask neighbors [
         if pcolor != white [
           set pcolor red
       ]
