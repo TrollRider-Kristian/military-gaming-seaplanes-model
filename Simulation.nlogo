@@ -1,20 +1,33 @@
  breed [seaplanes seaplane]
  breed [bombers bomber]
- breed [red_fighters red_fighter]
+ breed [red_scouts red_scout]
  breed [red_bombers red_bomber]
  breed [tenders  tender]
  breed [bases base]
  breed [red_bases red_base]
  breed [seaplane_bases seaplane_base]
 
-globals[number]
+globals[ B_17 PBY tonnage_B_17 tonnage_PBY red_target]
+
+bases-own[ health_land planes_land ]
+seaplane_bases-own[ health_sea planes_sea ]
+tenders-own[health]
+seaplanes-own[fuel bombs sea_home_base]
+red_bases-own[no_red_scouts no_red_bombers]
+red_scouts-own[fuel scout_base]
+red_bombers-own[fuel red_bomber_base]
+
 
 to setup
   clear-all
-  resize-world 0 193 0 318
-  import-pcolors "AOO2.png" ;; deleted set_directory to fix map bug- see commits "fixed map bug" and "fixed map bug for real"
+  resize-world 0 97 0 160 ; 0 193 0 318 ;; fixed map bug
+  import-pcolors "AOO2.png"
   reset-ticks
-  set number 0
+  setup_bases_historical
+  setup_red_base
+  setup_seaplane_bases
+  setup_tenders
+  set tonnage_PBY 0
 end
 
 to setup_bases_historical
@@ -26,50 +39,79 @@ to setup_bases_historical
     set color blue
     set size 2.5  ;; easier to see
     set label-color blue - 2
-    setxy 72 229]
-  ; Another field
-    create-bases 1[ ;; create the sheep
-    ;; then initialize their variables
-    set color blue
-    set size 2.5  ;; easier to see
-    set label-color blue - 2
-    setxy 74 227]
-  ; Another field
-    create-bases 1[ ;; create the sheep
-    ;; then initialize their variables
-    set color blue
-    set size 2.5  ;; easier to see
-    set label-color blue - 2
-    setxy 70 234]
-  ; Another field
-    create-bases 1[ ;; create the sheep
-    ;; then initialize their variables
-    set color blue
-    set size 2.5  ;; easier to see
-    set label-color blue - 2
-    setxy 90 180]
+    setxy 36 114]
+end
 
+to setup_red_base
     ;; red base setup
     set-default-shape red_bases "house"
     create-red_bases 1 [
       set color red
       set size 2.5
     set label-color red
-    setxy 62 292
+    setxy 31 147
+    set no_red_scouts 10
+    set no_red_bombers 10
   ]
 end
 
-to setup_units_historical
+;sets up seaplane bases and randomly generates them on coast line
+to setup_seaplane_bases
+  set-default-shape seaplane_bases "house"
+  let no_seaplane_bases 5 ;define on home screen
+  set PBY 45 ;define on home screen
+  ask n-of no_seaplane_bases patches with [(pycor < 134 and pycor > 71) and (pcolor = 8.7 or pcolor = 8 or pcolor = 4.2 or pcolor = 8.2 or pcolor = 8.6 or pcolor = 8.8)] [sprout-seaplane_bases 1 [
+    set color green
+    set size 2.5  ;; easier to see
+    set label-color green
+    set planes_sea ((PBY / no_seaplane_bases))
+    ;set PBY (PBY - planes_sea)
+    set health_sea 100
+      ] ; 240 to 140
+  ]
+  set PBY 45 ; define on home screen
 end
 
+;sets up seaplane tenders and randomly generates them in Phillippine archipilego
+to setup_tenders
+set-default-shape tenders "circle"
+  let no_tenders 3
+  ask n-of no_tenders patches with [(pycor < 110 and pycor > 71 and pxcor > 32 and pxcor < 60 ) and (pcolor = 9.9)] [sprout-tenders 1 [
+      set color green
+    set size 3  ;; easier to see
+    set label-color green
+
+
+      ] ; 240 to 140
+  ]
+end
+
+
+
+;; end of setup code
+
+
 to go
+  if ticks >= 10000 [stop]
+  seaplane_generate
+  bomber_generate
+  red_generate
+  ;genereate other shit
+  red_go
+  seaplane_go
+  ;other shit go
   tick
-  if ticks > 288 [ask patch 78 273 [set pcolor red]] ;;advance landing at Batan Island on 8th December
-  if ticks > 864 [ask (patch-set patch 75 256 patch 67 251 patch 76 261) [set pcolor red]]  ;;inital landings at Aparri, Vigan, and Camiguin Island on Dec 10 - 5 minutes per tick, first tick 7am Dec 7
-  if ticks mod 144 = 0 [ ;;allow the japanese to spread their love twice a day (where the remainder of the number of ticks in half a day divided into the current number of ticks is 0)
+
+  ;; code below this line does the Japanese invasion
+    if ticks = 288 [ask patch 38 138 [set pcolor red]] ;;advance landing at Batan Island on 8th December
+  if ticks = 864 [ask (patch-set patch 38 131 patch 38 129 patch 34 127) [set pcolor red]]  ;;inital landings at Aparri, Vigan, and Camiguin Island on Dec 10 - 5 minutes per tick, first tick 7am Dec 7
+  if ticks = 1440[ask patch 50 105 [set pcolor red]] ;;landing at Legaspi on 12th December
+  if ticks = 3744[ask patch 58 81 [set pcolor red]] ;;landing at Davao on 20th Dec
+  if (ticks mod 288 = 0 and (10 < random 720)) [ ;;allow the japanese to spread their love at an appropriate rate
+    ;; can modify the above value to make the japanese advance more historical in speed without hardcoding it
   ask patches [
     if pcolor = red [
-    ask neighbors [
+    ask one-of neighbors [
         if pcolor != white [
           set pcolor red
       ]
@@ -77,40 +119,142 @@ to go
   ]
   ]
   ]
- ;;go button is now go- had to check forever box on the actual button in the interface tab
- ;; NOTE: speed should be set to "quite slow"
 end
 
-;sprout [breed]
-;+1 -1 on base variable
-;
+to seaplane_generate
+  set-default-shape seaplanes "airplane"
+  ask seaplane_bases with [pcolor != red] [ hatch-seaplanes round (planes_sea / 12) [  ;;quartered the number of seaplanes because the number of seaplanes was TOO DAMN HIGH, made it so bases overrun by land can't launch planes
+    set color green
+    set size 2.5  ;; easier to see
+    set label-color green
+    set fuel 100
+    set sea_home_base patch-here
+    ]
+  set  planes_sea planes_sea - round (planes_sea / 12)
+  ]
+end
+
+to seaplane_go
+  ask seaplanes [
+    ifelse fuel > 50 ; checks to see if fuel is available
+    [
+      let target-patch one-of (patches with [pcolor = red or (pycor > 133 and pxcor > 28 and pxcor < 60)]) ;sets target for mission to a red occupied patch
+    face target-patch
+      seaplane_move ] ; this block if still has fuel
+    [let target-patch sea_home_base ; if fuel is not available, it returns to base
+    face target-patch
+      seaplane_move
+    if patch-here = target-patch ; this block adds the seaplanes back to the base
+          [ set tonnage_PBY (tonnage_PBY + 2000)
+            let blah one-of seaplane_bases-here                    ;; gets the base
+            ask blah [
+                set planes_sea planes_sea + 1 ]
+              die
+
+      ]
+
+    ]
+  ]
+
+end
+
+to seaplane_move
+  fd 1
+  set fuel (fuel - 1)
+  if 10 > random 10000 ;probability of dying
+  [set PBY PBY - 1
+    die]
+end
 
 
 
 
-;not sure what all this is but I guess is needed to populate the loading screen buttons
+to bomber_generate
+  set-default-shape bombers "airplane"
+  ask bases [ hatch-bombers 1 [
+    set color blue
+    set size 2.5  ;; easier to see
+    set label-color blue
+    ]
+  ]
+end
+
+to red_generate
+  set-default-shape red_scouts "airplane"
+  set-default-shape red_bombers "airplane"
+  if [pcolor] of patch 43 80 != red [     ;;stop scouting flights if the Phillipines are fully occupied by the Japanese
+  ask red_bases [ hatch-red_scouts round (no_red_scouts / 10) [ ;;waaaaay fewer scouts
+    set color yellow
+    set size 2.5  ;; easier to see
+    set label-color yellow
+    set fuel 100
+    set scout_base patch-here
+    let target-patch one-of (patches with [(pcolor != 9.9) and pxcor > 30 and pxcor < 60 and pycor < 129]) ;sets target for mission
+    face target-patch
+    ]
+    set  no_red_scouts no_red_scouts - round (no_red_scouts / 10)]
+
+    ask red_bases [ hatch-red_bombers round (no_red_bombers / 2) [
+    set color red
+    set size 2.5  ;; easier to see
+    set label-color red
+    set fuel 100
+    set red_bomber_base patch-here
+    ]
+    ]
+  ]
+
+end
+
+to red_go
+  ask red_scouts [
+    ifelse fuel > 50 ; checks to see if fuel is available
+    [
+      scout_move ] ; this block if still has fuel
+    [let target-patch scout_base ; if fuel is not available, it returns to base
+    face target-patch
+      scout_move
+    if patch-here = target-patch ; this block adds the seaplanes back to the base
+          [
+            let blah one-of red_bases-here                    ;; gets the base
+            ask blah [
+                set no_red_scouts no_red_scouts + 1 ]
+              die
+
+      ]
+
+    ]
+  ]
+
+
+end
+
+to scout_move
+  fd 1.5
+  set fuel (fuel - 0.75)
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-800
-976
+1492
+2112
 -1
 -1
-3.0
+13.0
 1
-5
-1
-1
-1
-0
+10
 1
 1
 1
 0
-193
 0
-318
+0
+1
+0
+97
+0
+160
 0
 0
 1
@@ -118,10 +262,10 @@ ticks
 30.0
 
 BUTTON
-78
-40
-184
-76
+41
+26
+147
+62
 Setup World
 setup
 NIL
@@ -135,12 +279,12 @@ NIL
 1
 
 BUTTON
-8
-86
-184
-122
+20
+82
+174
+116
 NIL
-setup_bases_historical
+seaplane_generate
 NIL
 1
 T
@@ -152,11 +296,11 @@ NIL
 1
 
 BUTTON
-7
-41
-70
-74
-go
+1564
+96
+1628
+130
+NIL
 go
 T
 1
@@ -167,6 +311,36 @@ NIL
 NIL
 NIL
 1
+
+PLOT
+1522
+164
+2170
+538
+PBY vs. B-17 Tonnage Delivered
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -13840069 true "" "plot tonnage_PBY"
+"pen-1" 1.0 0 -13345367 true "" "plot tonnage_B-17"
+
+MONITOR
+1694
+552
+1774
+597
+Number of PBYs Remaining
+PBY
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
