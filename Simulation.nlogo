@@ -99,31 +99,15 @@ to go
   ;genereate other shit
   red_go
   seaplane_go
+  seaplane_rebase
   ;other shit go
+  ifelse ticks < 4000 [japan_invasion_first_phase] [japan_invasion_second_phase] ;do the invasion with hopefully fewer checks
   tick
-
-  ;; code below this line does the Japanese invasion
-    if ticks = 288 [ask patch 38 138 [set pcolor red]] ;;advance landing at Batan Island on 8th December
-  if ticks = 864 [ask (patch-set patch 38 131 patch 38 129 patch 34 127) [set pcolor red]]  ;;inital landings at Aparri, Vigan, and Camiguin Island on Dec 10 - 5 minutes per tick, first tick 7am Dec 7
-  if ticks = 1440[ask patch 50 105 [set pcolor red]] ;;landing at Legaspi on 12th December
-  if ticks = 3744[ask patch 58 81 [set pcolor red]] ;;landing at Davao on 20th Dec
-  if (ticks mod 844 = 0 and (10 < random 720)) [ ;;allow the japanese to spread their love at an appropriate rate
-    ;; can modify the above value to make the japanese advance more historical in speed without hardcoding it
-  ask patches [
-    if pcolor = red [
-    ask neighbors [
-        if pcolor != white [
-          set pcolor red
-      ]
-    ]
-  ]
-  ]
-  ]
 end
 
 to seaplane_generate
   set-default-shape seaplanes "airplane"
-  ask seaplane_bases with [pcolor != red] [ hatch-seaplanes round (planes_sea / 12) [  ;;quartered the number of seaplanes because the number of seaplanes was TOO DAMN HIGH, made it so bases overrun by land can't launch planes
+  ask seaplane_bases [ hatch-seaplanes round (planes_sea / 12) [  ;;quartered the number of seaplanes because the number of seaplanes was TOO DAMN HIGH, made it so bases overrun by land can't launch planes
     set color green
     set size 2.5  ;; easier to see
     set label-color green
@@ -147,10 +131,12 @@ to seaplane_go
     if patch-here = target-patch ; this block adds the seaplanes back to the base
           [ set tonnage_PBY (tonnage_PBY + 2000)
             let blah one-of seaplane_bases-here                    ;; gets the base
+            ifelse blah != nobody [
             ask blah [
                 set planes_sea planes_sea + 1 ]
               die
-
+              ]
+              [die]
       ]
 
     ]
@@ -166,7 +152,16 @@ to seaplane_move
     die]
 end
 
-
+to seaplane_rebase
+  ask seaplane_bases [
+    if pcolor = red and ticks > 1440 [
+      move-to one-of (patches with [pcolor != white and pcolor != red and pycor < 120 and pycor > 100])
+      if 10 < random 50[
+        die
+      ]
+    ]
+  ]
+end
 
 
 to bomber_generate
@@ -227,6 +222,22 @@ to red_go
   ]
 
 
+end
+
+to japan_invasion_first_phase
+  if ticks = 288 [ask patch 38 138 [set pcolor red]] ;;advance landing at Batan Island on 8th December
+  if ticks = 864 [ask (patch-set patch 38 131 patch 38 129 patch 34 127) [set pcolor red]]  ;;inital landings at Aparri, Vigan, and Camiguin Island on Dec 10 - 5 minutes per tick, first tick 7am Dec 7
+  if ticks = 1440[ask (patches with [pcolor != white and ((pycor >= 125 and pycor < 138) or (pxcor = 49 and pycor = 107))]) [set pcolor red]] ;;landing at Legaspi on 12th December and initial advance
+  if ticks = 2880 [ask (patch-set patch 34 123 patch 34 124) [set pcolor red]]
+  if ticks = 3744[ask patch 58 81 [set pcolor red]] ;;landing at Davao on 20th Dec
+end
+
+to japan_invasion_second_phase
+  if ticks = 4320[ask (patch-set patch 34 121 patch 34 122 patch 42 111 patch 41 111 patch 40 111 patch 40 112 patch 40 113) [set pcolor red]]
+  if ticks = 5472[ask (patches with [(pcolor != white and pycor >= 120 and pycor < 140) or ((pxcor = 41 or pxcor = 42) and pycor = 77)]) [set pcolor red]]
+  if ticks = 6336 [ask (patches with [pcolor != white and ((pycor >= 117 and pycor < 140) or (pycor >= 105 and pycor <= 111 and pxcor >= 43 and not (pxcor = 43 and pycor = 105)))]) [set pcolor red]] ;december 29th
+  if ticks = 5472[ask (patches with [pcolor != white and pycor >= 120 and pycor < 140]) [set pcolor red]]
+  if ticks = 7488[ask (patches with [pcolor != white and pycor >= 109 and pycor < 140]) [set pcolor red]]
 end
 
 to scout_move
