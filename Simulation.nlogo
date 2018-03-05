@@ -227,7 +227,10 @@ to red_go
   ]
 
   ;do I stick the tracking function here?
-  scout_track
+  if ticks > 0 and ticks mod 288 = 0
+  [
+    scout_track
+  ]
 
 end
 
@@ -244,13 +247,12 @@ to tracking_helper [given_bases]
     ; this isn't about search, it's about the overall tonnage delivered when comparing pby and b-17, so this should be ok
     let denom sqrt (97 * 97 + 160 * 160)
     let prob (1 - (dist_to_base / denom)) * 100
-    if ticks > 0 and ticks mod 288 = 0 and random 100 < prob
+    if random 100 < prob
     [
       ; if we're here, it's because we found the base
-      print dist_to_base
-      print denom
-      print prob
-      print "Spotted base!"
+      ;print dist_to_base
+      ;print denom
+      ;print prob
     ]
   ]
 end
