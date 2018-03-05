@@ -221,6 +221,11 @@ to red_go
     ]
   ]
 
+  ;do I stick the tracking function here?
+  if ticks > 0 and ticks mod 288 = 0
+  [
+    scout_track
+  ]
 
 end
 
@@ -243,6 +248,29 @@ end
 to scout_move
   fd 1.5
   set fuel (fuel - 0.75)
+end
+
+to tracking_helper [given_bases]
+  ask given_bases
+  [
+    let dist_to_base distance red_base 1
+    ; assume for the sake of the model that the chances of spotting an enemy base are proportional to our distance from the base
+    ; this isn't about search, it's about the overall tonnage delivered when comparing pby and b-17, so this should be ok
+    let denom sqrt (97 * 97 + 160 * 160)
+    let prob (1 - (dist_to_base / denom)) * 100
+    if random 100 < prob
+    [
+      ; if we're here, it's because we found the base
+      ;print dist_to_base
+      ;print denom
+      ;print prob
+    ]
+  ]
+end
+
+to scout_track
+  tracking_helper bases
+  tracking_helper seaplane_bases
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
