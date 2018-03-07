@@ -1,4 +1,4 @@
- breed [seaplanes seaplane]
+  breed [seaplanes seaplane]
  breed [bombers bomber]
  breed [red_scouts red_scout]
  breed [red_bombers red_bomber]
@@ -107,7 +107,7 @@ to go
     if ticks > 0 and ticks mod 288 = 0
   [
     scout_track
-
+    
   ]
   ;other shit go
   ifelse ticks < 4000 [japan_invasion_first_phase] [japan_invasion_second_phase] ;do the invasion with hopefully fewer checks
@@ -286,10 +286,12 @@ to red_bombers_move
       ifelse store = nobody
         [set store one-of seaplane_bases-here
             ask store [
-        set planes_sea planes_sea * 0.5]
+            set PBY round(PBY - (planes_sea * 0.5))
+        set planes_sea round(planes_sea * 0.5)]
           ]
         [ask store [
-      set planes_land planes_land * 0.5
+          set B_17 round(B_17 - (planes_land * 0.5))
+      set planes_land round(planes_land * 0.5)
         ]
         ]
         set fuel 49
@@ -297,14 +299,14 @@ to red_bombers_move
         ]
         ]
     ]
-
+  
 end
 
 to scout_track
   tracking_helper bases
   ifelse ticks < 2000
   [
-    tracking_helper seaplane_bases with [ ycor > 120 ]
+    tracking_helper seaplane_bases with [ ycor > 105 ]
   ]
   [
     tracking_helper seaplane_bases
@@ -319,7 +321,7 @@ to tracking_helper [given_bases]
     ; this isn't about search, it's about the overall tonnage delivered when comparing pby and b-17
     let denom sqrt (97 * 97 + 160 * 160)
     let prob (1 - (dist_to_base / denom)) * 100
-
+    
     if random 100 < prob
     [let target self
     ask target
@@ -347,12 +349,13 @@ to tracking_helper [given_bases]
                 set no_red_bombers no_red_bombers + 1
 ]
         ]
-
+      
       ]
     ]
-
-
+    
+  
 end
+
 
 @#$#@#$#@
 GRAPHICS-WINDOW
