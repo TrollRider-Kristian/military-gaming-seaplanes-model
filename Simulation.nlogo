@@ -9,6 +9,7 @@
 
 globals[ B_17 PBY tonnage_B_17 tonnage_PBY red_target]
 
+bombers-own[fuel bomber_home_base bombed?]
 bases-own[ health_land planes_land ]
 seaplane_bases-own[ health_sea planes_sea ]
 tenders-own[health]
@@ -16,6 +17,10 @@ seaplanes-own[fuel bombs sea_home_base]
 red_bases-own[no_red_scouts no_red_bombers]
 red_scouts-own[fuel scout_base]
 red_bombers-own[fuel red_bomber_base]
+
+;;SCALE FACTORS
+;; 1 tick = 5 minutes
+;; 1 patch = 16.5 miles
 
 
 to setup
@@ -39,6 +44,7 @@ to setup_bases_historical
     set color blue
     set size 2.5  ;; easier to see
     set label-color blue - 2
+    set planes_land 48
     setxy 36 114]
 end
 
@@ -85,7 +91,7 @@ set-default-shape tenders "circle"
       ] ; 240 to 140
   ]
 end
-
+;;do seaplane tenders actually do anything in the current code?
 
 
 ;; end of setup code
@@ -93,11 +99,16 @@ end
 
 to go
   if ticks >= 10000 [stop]
-  seaplane_generate
-  bomber_generate
-  red_generate
+  if ticks mod 144 = 0 [  ;;completely artificial way to drag down sortie rate
+    seaplane_generate
+    bomber_generate
+    red_generate
+  ]
   ;genereate other shit
   red_go
+  if ticks < 7488 [
+  bomber_go
+  ]
   seaplane_go
   seaplane_rebase
   ;other shit go
@@ -107,7 +118,8 @@ end
 
 to seaplane_generate
   set-default-shape seaplanes "airplane"
-  ask seaplane_bases [ hatch-seaplanes round (planes_sea / 12) [  ;;quartered the number of seaplanes because the number of seaplanes was TOO DAMN HIGH, made it so bases overrun by land can't launch planes
+  ask seaplane_bases [
+  ifelse planes_sea > 6 [ hatch-seaplanes round (planes_sea / 12) [  ;;quartered the number of seaplanes because the number of seaplanes was TOO DAMN HIGH, also need to know sortie rates
     set color green
     set size 2.5  ;; easier to see
     set label-color green
@@ -115,14 +127,24 @@ to seaplane_generate
     set sea_home_base patch-here
     ]
   set  planes_sea planes_sea - round (planes_sea / 12)
+    ]
+    [ hatch-seaplanes planes_sea [                                ;;added an ELSE so they'll launch all their planes if they have less than 7 such that round (planes_sea / 12) = 0
+      set color green
+    set size 2.5  ;; easier to see
+    set label-color green
+    set fuel 120
+    set sea_home_base patch-here
+      ]
+      set  planes_sea 0
+    ]
   ]
 end
 
 to seaplane_go
   ask seaplanes [
-    ifelse fuel > 50 ; checks to see if fuel is available
+    ifelse fuel > 60 ; checks to see if fuel is available, changed 50->40 to reflect real PBY combat radius of 1000 miles (see Presentation 3)
     [
-      let target-patch one-of (patches with [pcolor = red or (pycor > 133 and pxcor > 28 and pxcor < 60)]) ;sets target for mission to a red occupied patch
+      let target-patch one-of (patches with [pcolor = red or (pycor > 133 and pycor < 143 and pxcor > 28 and pxcor < 60)]) ;sets target for mission to a red occupied patch or the seazones north of Luzon
     face target-patch
       seaplane_move ] ; this block if still has fuel
     [let target-patch sea_home_base ; if fuel is not available, it returns to base
@@ -147,7 +169,7 @@ end
 to seaplane_move
   fd 1
   set fuel (fuel - 1)
-  if 10 > random 10000 ;probability of dying
+  if 10 > random 10000 ;probability of dying, for which we still have no proof
   [set PBY PBY - 1
     die]
 end
@@ -166,12 +188,63 @@ end
 
 to bomber_generate
   set-default-shape bombers "airplane"
-  ask bases [ hatch-bombers 1 [
+  ask bases [ ifelse planes_land > 3 and ticks < 7488 [hatch-bombers round (planes_land / 6) [
     set color blue
     set size 2.5  ;; easier to see
     set label-color blue
+    set fuel 200
+    set bomber_home_base patch-here
+    set bombed? False
+
+    ]
+    set  planes_land planes_land - round (planes_land / 6)
+    ]
+    [hatch-bombers planes_land [
+    set color blue
+    set size 2.5  ;; easier to see
+    set label-color blue
+    set fuel 200
+    set bomber_home_base patch-here
+  ]
+      set  planes_land 0
     ]
   ]
+end
+
+to bomber_go
+  ask bombers [
+    let target-patch one-of (patches with [pcolor = red or (pycor > 133 and pycor < 143 and pxcor > 28 and pxcor < 60)]) ;sets target for mission to a red occupied patch or the seazones north of Luzon
+    ifelse fuel > 100 and not bombed?; checks to see if fuel is available
+    [
+    face target-patch
+      ifelse patch-here != target-patch[bomber_move]
+      [set bombed? True
+      print "Bombed!"]
+      ] ; this block if still has fuel
+    [set target-patch bomber_home_base ; if fuel is not available, it returns to base
+    face target-patch
+      bomber_move
+      if patch-here = target-patch [; this block adds the seaplanes back to the base
+    set tonnage_B_17 (tonnage_B_17 + 2000)
+            let blah one-of bases-here                    ;; gets the base
+            ifelse blah != nobody [
+            ask blah [
+                set planes_land planes_land + 1 ]
+              die
+              ]
+              [die]
+      ]
+      ]
+      ]
+end
+
+to bomber_move
+  fd 1
+  if ticks mod 3 = 0 [fd 1]
+  set fuel (fuel - 1)
+  if 10 > random 10000 ;probability of dying, for which we still have no proof
+  [set B_17 B_17 - 1
+    die]
 end
 
 to red_generate
@@ -368,7 +441,7 @@ false
 "" ""
 PENS
 "default" 1.0 0 -13840069 true "" "plot tonnage_PBY"
-"pen-1" 1.0 0 -13345367 true "" "plot tonnage_B-17"
+"pen-1" 1.0 0 -13345367 true "" "plot tonnage_B_17"
 
 MONITOR
 1694
