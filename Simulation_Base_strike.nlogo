@@ -342,7 +342,10 @@ to tracking_helper [given_bases]
         set target_base ([list pycor pxcor] of (one-of given_bases with [notFound = false]))
         ]
         [
-          set target_base ([list pycor pxcor] of (one-of bases with [notFound = false]))
+          die
+          ask one-of red_bases   [                 ;; gets the base
+                set no_red_bombers no_red_bombers + 1
+]
         ]
 
       ]
