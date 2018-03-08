@@ -133,7 +133,7 @@ to seaplane_go
   ask seaplanes [
     ifelse fuel > 60 ; checks to see if fuel is available, changed to 60/120 instead of 50/100 to reflect PBY combat radius of 1000 miles
     [
-      let target-patch one-of (patches with [ pcolor = red or (pycor > 133 and pycor < 142 and pxcor > 15 and pxcor < 60)]) ;sets target for mission to a red occupied patch or shipping
+      let target-patch one-of (patches with [ pcolor = red or (pycor > 133 and pycor < 142 and pxcor > 15 and pxcor < 60)]) ;sets target for mission to a red occupied patch o
     face target-patch
       seaplane_move ] ; this block if still has fuel
     [let target-patch sea_home_base ; if fuel is not available, it returns to base
@@ -216,7 +216,7 @@ to bomber_go
 end
 
 to bomber_move
-  fd 1.33 ; apparently you can move fractions? TBD
+  fd 1
   set fuel (fuel - 1)
   if 10 > random 10000 ;probability of dying
   [set B_17 B_17 - 1
