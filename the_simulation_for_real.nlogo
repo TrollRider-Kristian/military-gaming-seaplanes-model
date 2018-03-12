@@ -155,7 +155,7 @@ to seaplane_go
 end
 
 to seaplane_move
-  fd 1                        ;in a twist of fate, at our chosen scale of 1 tick = 5 minutes and 1 patch = 16.5 miles, PBY Catalinas actually fly at almost exactly 1 patch/tick
+  fd 0.6                       ;115-ish mph
   set fuel (fuel - 1)
   if 10 > random 10000 ;probability of dying, TO BE CALIBRATED
   [set PBY PBY - 1
@@ -215,7 +215,7 @@ to bomber_go
 end
 
 to bomber_move
-  fd 1.33 ; apparently you can move fractions? TBD
+  fd 0.9 ; apparently you can move fractions
   set fuel (fuel - 1)
   if 10 > random 10000 ;probability of dying
   [set B_17 B_17 - 1
@@ -318,7 +318,7 @@ to red_bombers_move
     if target_base != nobody
     [
       facexy (item 1 target_base) (item 0 target_base)
-      fd 1.1 ;; speed fixed to 220 mph
+      fd 1 ;; speed fixed to 196 mph
       set fuel (fuel - 1)
       if patch-here = (patch (item 1 target_base) (item 0 target_base)) [
         print "at target"
