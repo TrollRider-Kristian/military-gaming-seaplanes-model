@@ -318,7 +318,7 @@ to red_bombers_move
     if target_base != nobody
     [
       facexy (item 1 target_base) (item 0 target_base)
-      fd 1
+      fd 1.1 ;; speed fixed to 220 mph
       set fuel (fuel - 1)
       if patch-here = (patch (item 1 target_base) (item 0 target_base)) [
         print "at target"
@@ -583,7 +583,7 @@ PBY
 PBY
 0
 100
-4.0
+45.0
 1
 1
 planes
