@@ -325,9 +325,9 @@ to red_bombers_move
       let store one-of bases-here
       ifelse store = nobody
         [set store one-of seaplane_bases-here
-          if store = nobody
+          ifelse store = nobody
           [set fuel 49]
-            ask store [
+            [ask store
             set PBY round(PBY - (planes_sea * 0.5))
         set planes_sea round(planes_sea * 0.5)]
           ]
