@@ -97,7 +97,7 @@ end
 
 to go
   if ticks >= 5184 [stop] ;;Dec 25th, PBYs withdrawn to Indonesia
-  if ticks mod 288 = 0 [  ;; making the sortie rate freakin chill to one/day
+  if ticks mod 576 = 0 [  ;; making the sortie rate freakin chill
     seaplane_generate
   bomber_generate
   ]
@@ -327,13 +327,12 @@ to red_bombers_move
       let store one-of bases-here
       ifelse store = nobody
         [set store one-of seaplane_bases-here
-          ifelse store = nobody
-          [set fuel 49][
+          ife store = nobody
+          [set fuel 49]
             ask store [
             set PBY round(PBY - (planes_sea * 0.5))
         set planes_sea round(planes_sea * 0.5)]
           ]
-        ]
         [ask store [
           set B_17 round(B_17 - (planes_land * 0.5))
       set planes_land round(planes_land * 0.5)
@@ -586,7 +585,7 @@ PBY
 PBY
 0
 100
-23.0
+45.0
 1
 1
 planes
