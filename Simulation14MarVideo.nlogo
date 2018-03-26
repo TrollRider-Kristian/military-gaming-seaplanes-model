@@ -31,6 +31,34 @@ to setup
   set tonnage_PBY 0
 end
 
+; with Iba
+to setup_four_bases
+  clear-all
+  resize-world 0 97 0 160 ; 0 193 0 318 ;; fixed map bug
+  import-pcolors "AOO2.png"
+  ;import-drawing "overlay.png"
+  reset-ticks
+  setup_bases_4
+  setup_red_base
+  setup_seaplane_bases
+  setup_tenders
+  set tonnage_PBY 0
+end
+
+; with Iba and Davao
+to setup_five_bases
+  clear-all
+  resize-world 0 97 0 160 ; 0 193 0 318 ;; fixed map bug
+  import-pcolors "AOO2.png"
+  ;import-drawing "overlay.png"
+  reset-ticks
+  setup_bases_5
+  setup_red_base
+  setup_seaplane_bases
+  setup_tenders
+  set tonnage_PBY 0
+end
+
 to setup_bases_historical
   ;; blue base setup
   ; Clark Field
@@ -65,6 +93,36 @@ to setup_bases_historical
       setxy 55 88
       set notFound false
       set planes_land 5
+  ]
+end
+
+to setup_bases_4
+  setup_bases_historical
+
+  ; Iba Air Field
+  create-bases 1
+  [
+    set color blue
+    set size 2.5
+    set label-color blue - 2
+    setxy 33 117
+    set notFound false
+    set planes_land 5
+  ]
+end
+
+to setup_bases_5
+  setup_bases_4
+
+  ; Davao Air Field
+  create-bases 1
+  [
+    set color blue
+    set size 2.5
+    set label-color blue - 2
+    setxy 57 82
+    set notFound false
+    set planes_land 5
   ]
 end
 
@@ -524,7 +582,7 @@ PBY
 PBY
 0
 100
-0.0
+45.0
 1
 1
 planes
@@ -540,6 +598,40 @@ tonnage_B_17
 17
 1
 11
+
+BUTTON
+23
+81
+171
+114
+Setup World with Iba
+setup_four_bases
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+9
+128
+192
+161
+Setup World with Iba and Davao
+setup_five_bases
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
