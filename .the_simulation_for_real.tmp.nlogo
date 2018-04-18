@@ -42,7 +42,7 @@ to setup_bases_historical
     set label-color blue - 2
     setxy 36 114
     set notFound false
-
+    set B17 35
   ]
 end
 
@@ -532,17 +532,6 @@ PENS
 "PBY" 1.0 0 -13840069 true "" "plot tonnage_PBY"
 "B-17" 1.0 0 -13345367 true "" "plot tonnage_B_17"
 
-MONITOR
-1586
-616
-1657
-661
-Number of PBYs Remaining
-PBY
-17
-1
-11
-
 SLIDER
 12
 232
@@ -567,10 +556,25 @@ B17
 B17
 0
 100
-0.0
+35.0
 1
 1
 planes
+HORIZONTAL
+
+SLIDER
+70
+356
+242
+389
+end_tick
+end_tick
+1000
+10000
+5184.0
+1
+1
+ticks
 HORIZONTAL
 
 @#$#@#$#@

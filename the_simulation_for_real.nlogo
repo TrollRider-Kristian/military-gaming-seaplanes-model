@@ -532,17 +532,6 @@ PENS
 "PBY" 1.0 0 -13840069 true "" "plot tonnage_PBY"
 "B-17" 1.0 0 -13345367 true "" "plot tonnage_B_17"
 
-MONITOR
-1586
-616
-1657
-661
-Number of PBYs Remaining
-PBY
-17
-1
-11
-
 SLIDER
 12
 232
@@ -552,7 +541,7 @@ PBY
 PBY
 0
 100
-19.0
+45.0
 1
 1
 planes
@@ -567,7 +556,7 @@ B17
 B17
 0
 100
-1.0
+35.0
 1
 1
 planes
