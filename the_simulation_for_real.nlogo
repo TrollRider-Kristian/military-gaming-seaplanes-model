@@ -9,7 +9,7 @@
 
 globals[ B_17 tonnage_B_17 tonnage_PBY red_target]
 
-bases-own[ health_land planes_land notFound ]
+bases-own[ health_land notFound ]
 seaplane_bases-own[ health_sea planes_sea notFound ]
 bombers-own [fuel bombs land_home_base]
 tenders-own[health]
@@ -42,7 +42,7 @@ to setup_bases_historical
     set label-color blue - 2
     setxy 36 114
     set notFound false
-    set planes_land 35
+    set B17 35
   ]
 end
 
@@ -177,14 +177,14 @@ end
 
 to bomber_generate
   set-default-shape bombers "airplane"
-  ask bases [ hatch-bombers (planes_land / 2) [
+  ask bases [ hatch-bombers (B17 / 2) [
     set color blue
     set size 2.5  ;; easier to see
     set label-color blue
     set land_home_base patch-here
     set fuel 120
     ]
-  set  planes_land planes_land -  (planes_land / 2)
+  set  B17 B17 -  (B17 / 2)
   ]
 
 
@@ -205,7 +205,7 @@ to bomber_go
             let blah one-of bases-here                    ;; gets the base
             ifelse blah != nobody [
             ask blah [
-                set planes_land planes_land + 1 ]
+                set B17 B17 + 1 ]
               die
               ]
               [die]
@@ -335,8 +335,8 @@ to red_bombers_move
           ]
         ]
         [ask store [
-          set B_17 round(B_17 - (planes_land * 0.5))
-      set planes_land round(planes_land * 0.5)
+          set B_17 round(B_17 - (B17 * 0.5))
+      set B17 round(B17 * 0.5)
         ]
         ]
         set fuel 49
@@ -429,11 +429,11 @@ ticks
 30.0
 
 BUTTON
-41
-26
-147
-62
-Setup World
+12
+30
+173
+66
+Setup World - Historical
 setup
 NIL
 1
@@ -446,28 +446,11 @@ NIL
 1
 
 BUTTON
-8
-86
-184
-122
-NIL
-setup_bases_historical
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
 12
-146
+82
 182
-180
-NIL
+116
+Add Seaplane Bases
 setup_seaplane_bases
 NIL
 1
@@ -480,11 +463,11 @@ NIL
 1
 
 BUTTON
-36
-206
-157
-242
-NIL
+12
+130
+133
+166
+Add Tenders
 setup_tenders
 NIL
 1
@@ -497,29 +480,12 @@ NIL
 1
 
 BUTTON
-20
-268
-174
-302
-NIL
+12
+179
+166
+213
+Launch All Seaplanes
 seaplane_generate
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-44
-360
-154
-394
-NIL
-seaplane_go
 NIL
 1
 T
@@ -578,15 +544,30 @@ PBY
 11
 
 SLIDER
-11
-424
-183
-457
+12
+232
+184
+265
 PBY
 PBY
 0
 100
-23.0
+19.0
+1
+1
+planes
+HORIZONTAL
+
+SLIDER
+12
+280
+184
+313
+B17
+B17
+0
+100
+1.0
 1
 1
 planes
